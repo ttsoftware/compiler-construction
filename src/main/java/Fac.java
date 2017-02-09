@@ -1,19 +1,24 @@
 // General stuff
+
 import org.bytedeco.javacpp.*;
 
 // Headers required by LLVM
 import static org.bytedeco.javacpp.LLVM.*;
 
 public class Fac {
-    public static void main (String[] args) {
-        BytePointer error = new BytePointer((Pointer)null); // Used to retrieve messages from functions
+
+    public static void main(String[] args) {
+
+        BytePointer error = new BytePointer((Pointer) null); // Used to retrieve messages from functions
+
         LLVMLinkInMCJIT();
         LLVMInitializeNativeAsmPrinter();
         LLVMInitializeNativeAsmParser();
         LLVMInitializeNativeDisassembler();
         LLVMInitializeNativeTarget();
+
         LLVMModuleRef mod = LLVMModuleCreateWithName("fac_module");
-        LLVMTypeRef[] fac_args = { LLVMInt32Type() };
+        LLVMTypeRef[] fac_args = {LLVMInt32Type()};
         LLVMValueRef fac = LLVMAddFunction(mod, "fac", LLVMFunctionType(LLVMInt32Type(), fac_args[0], 1, 0));
         LLVMSetFunctionCallConv(fac, LLVMCCallConv);
         LLVMValueRef n = LLVMGetParam(fac, 0);
@@ -34,24 +39,23 @@ public class Fac {
 
         LLVMPositionBuilderAtEnd(builder, iffalse);
         LLVMValueRef n_minus = LLVMBuildSub(builder, n, LLVMConstInt(LLVMInt32Type(), 1, 0), "n - 1");
-        LLVMValueRef[] call_fac_args = { n_minus };
+        LLVMValueRef[] call_fac_args = {n_minus};
         LLVMValueRef call_fac = LLVMBuildCall(builder, fac, new PointerPointer(call_fac_args), 1, "fac(n - 1)");
         LLVMValueRef res_iffalse = LLVMBuildMul(builder, n, call_fac, "n * fac(n - 1)");
         LLVMBuildBr(builder, end);
 
         LLVMPositionBuilderAtEnd(builder, end);
         LLVMValueRef res = LLVMBuildPhi(builder, LLVMInt32Type(), "result");
-        LLVMValueRef[] phi_vals = { res_iftrue, res_iffalse };
-        LLVMBasicBlockRef[] phi_blocks = { iftrue, iffalse };
+        LLVMValueRef[] phi_vals = {res_iftrue, res_iffalse};
+        LLVMBasicBlockRef[] phi_blocks = {iftrue, iffalse};
         LLVMAddIncoming(res, new PointerPointer(phi_vals), new PointerPointer(phi_blocks), 2);
         LLVMBuildRet(builder, res);
 
         LLVMVerifyModule(mod, LLVMAbortProcessAction, error);
         LLVMDisposeMessage(error); // Handler == LLVMAbortProcessAction -> No need to check errors
 
-
         LLVMExecutionEngineRef engine = new LLVMExecutionEngineRef();
-        if(LLVMCreateJITCompilerForModule(engine, mod, 2, error) != 0) {
+        if (LLVMCreateJITCompilerForModule(engine, mod, 2, error) != 0) {
             System.err.println(error.getString());
             LLVMDisposeMessage(error);
             System.exit(-1);
