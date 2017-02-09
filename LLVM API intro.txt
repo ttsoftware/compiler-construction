@@ -28,10 +28,19 @@ The LLVM IR is described here: http://llvm.org/docs/LangRef.html
 
 Iterating structures:
 
-Modules: Use LLVMGetFirstFuction(module), LLVMGetLastFunction(module) and LLVMGetNextFunction(function) to iterate over the functions in the module
+Modules: Use LLVMGetFirstFuction(module),
+             LLVMGetLastFunction(module),
+             LLVMGetNextFunction(function) to iterate over the functions in the module
+
 Functions: Use LLVMGetBasicBlocks(function) to get a list of basic blocks
-Basic blocks: Basic blocks also encode the control flow graph. Use LLVMGetNumSuccessors(basicblock), LLVMGetSuccessor(basicblock, index) to get the edges in the graph.
-Instructions: LLVMGetFirstInstruction, LLVMGetLastInstruction and LLVMGetNextInstruction to iterate over instructions in a basic block
+
+Basic blocks: Basic blocks also encode the control flow graph. Use
+                LLVMGetNumSuccessors(basicblock),
+                LLVMGetSuccessor(basicblock, index) to get the edges in the graph.
+
+Instructions: LLVMGetFirstInstruction,
+              LLVMGetLastInstruction,
+              LLVMGetNextInstruction to iterate over instructions in a basic block
 
 
 ------------------------------------------------------------
