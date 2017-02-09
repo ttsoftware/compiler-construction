@@ -1,12 +1,16 @@
 package compiler;
 
 import org.bytedeco.javacpp.*;
-
-// Headers required by LLVM
 import static org.bytedeco.javacpp.LLVM.*;
 
 public class ModuleLoader {
 
+    /**
+     * Absolute path to bytecode file
+     *
+     * @param path
+     * @return
+     */
     public static LLVMModuleRef loadModuleFromFile(String path) {
 
         LLVMMemoryBufferRef module = new LLVMMemoryBufferRef();
