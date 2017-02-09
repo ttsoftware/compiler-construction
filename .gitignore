@@ -4,3 +4,4 @@ target
 out
 dist
 target/
+*.log
