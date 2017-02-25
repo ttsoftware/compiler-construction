@@ -5,3 +5,5 @@ out
 dist
 target/
 *.log
+*.out
+*.bc
