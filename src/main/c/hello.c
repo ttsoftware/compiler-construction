@@ -10,6 +10,7 @@ int main() {
 
     int a = 3;
     int* x = &a;
+    x = NULL;
     int b;
     //x=NULL;
     b=*x; // or some dereferencing of x
