@@ -1,5 +1,17 @@
 #include<stdio.h>
 
 int main() {
-    printf("Hello World");
+    /*int x;
+    int* a;
+    while(1) {
+        continue;
+    } */
+
+
+    int a = 3;
+    int* x = &a;
+    int b;
+    //x=NULL;
+    b=*x; // or some dereferencing of x
+    return 1;
 }
