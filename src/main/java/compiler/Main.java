@@ -43,7 +43,10 @@ public class Main {
 
                         variableName = LLVMGetValueName(LLVMGetOperand(instruction, 1)).getString();
 
-                        if (LLVMIsNull(LLVMGetOperand(instruction, 0)) == 1) {
+                        // set variable as null in nullPointerMap unless variable is of type int (8)
+                        if (LLVMIsNull(LLVMGetOperand(instruction, 0)) == 1
+                                && LLVMGetTypeKind(LLVMTypeOf(LLVMGetOperand(instruction, 0))) == 12) {
+
                             if (!variableName.equals("")) {
                                 nullPointerMap.put(variableName, true);
                             }
@@ -66,9 +69,6 @@ public class Main {
 
                             throw new NullPointerException("Trying to deference " + variableName + " but got NULL, at:\n " + intermediateRepresentation);
                         }
-                    }
-                    if (LLVMIsACallInst(instruction) != null) {
-                        // Not doing anything here yet.
                     }
                 }
             }

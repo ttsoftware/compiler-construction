@@ -1,18 +1,9 @@
 #include<stdio.h>
 
 int main() {
-    /*int x;
-    int* a;
-    while(1) {
-        continue;
-    } */
-
-
-    int a = 3;
-    int* x = &a;
-    x = NULL;
-    int b;
-    //x=NULL;
-    b=*x; // or some dereferencing of x
+    char a = NULL;
+    char* b = NULL;
+    char x = 0;
+    char c = *b + 0x01;
     return 1;
 }
