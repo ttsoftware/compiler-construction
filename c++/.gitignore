@@ -8,3 +8,5 @@ target/
 *.out
 *.bc
 cmake-build-debug/
+CMakeFiles
+CMakeCache.txt
