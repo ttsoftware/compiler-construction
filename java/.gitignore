@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/workspace.xml
+target
+out
+dist
+target/
+*.log
+*.out
+*.bc

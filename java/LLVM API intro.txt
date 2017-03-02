@@ -1,0 +1,116 @@
+------------------------------------------------------------
+ About the LLVM c-api
+------------------------------------------------------------
+
+The language bindings (for Java, C#/F#, etc) are all based on the LLVM c-api.
+
+The documentation for the api itself is a bit daunting to read, but is available here:
+http://llvm.org/docs/doxygen/html/group__LLVMC.html
+
+Because the underlying API is the same, the API is used almost identically in the different language bindings, but specific information is available for each binding:
+
+Java: http://bytedeco.org/javacpp-presets/llvm/apidocs/
+C#/F#: https://github.com/Microsoft/LLVMSharp
+
+
+------------------------------------------------------------
+ API overview
+------------------------------------------------------------
+
+LLVM organises the code in the following hierarchy:
+
+*) Modules: Roughly equivalent to a .c file. Contains functions (and global values)
+*) Functions: Contains info about parameters, return types and the basic blocks
+*) Basic blocks: A list of instructions (with some special properties - more on this in later lectures)
+*) Instructions: A single LLVM instruction
+
+The LLVM IR is described here: http://llvm.org/docs/LangRef.html
+
+Iterating structures:
+
+Modules: Use LLVMGetFirstFuction(module),
+             LLVMGetLastFunction(module),
+             LLVMGetNextFunction(function) to iterate over the functions in the module
+
+Functions: Use LLVMGetBasicBlocks(function) to get a list of basic blocks
+
+Basic blocks: Basic blocks also encode the control flow graph. Use
+                LLVMGetNumSuccessors(basicblock),
+                LLVMGetSuccessor(basicblock, index) to get the edges in the graph.
+
+Instructions: LLVMGetFirstInstruction,
+              LLVMGetLastInstruction,
+              LLVMGetNextInstruction to iterate over instructions in a basic block
+
+
+------------------------------------------------------------
+ Generate bitcode from c source files
+------------------------------------------------------------
+
+clang -emit-llvm -o [name].bc -c [name].c
+
+------------------------------------------------------------
+ F#
+------------------------------------------------------------
+
+ let openModuleFromFile path = match LLVM.CreateMemoryBufferWithContentsOfFile path with
+                              | hasErr, _, msg when bool hasErr -> failwith "Cannot load file content"
+                              | _, file, _                      -> match LLVM.ParseBitcode file with
+                                                                   | hasErr, _, msg when bool hasErr -> failwith "Cannot parse bitcode"
+                                                                   | _, m, _ -> m
+
+
+------------------------------------------------------------
+ C#
+------------------------------------------------------------
+private static LLVMModuleRef LoadModuleFromFile(String path)
+{
+	LLVMMemoryBufferRef fileRef;
+	IntPtr message;
+	LLVMBool hasError = LLVM.CreateMemoryBufferWithContentsOfFile(path, out fileRef, out message);
+	if (hasError)
+	{
+		throw new Exception("Cannot load file contents");
+	}
+
+	LLVMModuleRef module;
+	hasError = LLVM.ParseBitcode(fileRef, out module, out message);
+	if (hasError)
+	{
+		throw new Exception("Cannot parse file contents as bitcode");
+	}
+	return module;
+}
+
+------------------------------------------------------------
+ Java
+------------------------------------------------------------
+
+public static LLVMModuleRef loadModuleFromFile(String path) throws Exception{
+	LLVMMemoryBufferRef module = new LLVMMemoryBufferRef();
+	BytePointer message = new BytePointer((Pointer)null);
+	int hasError = LLVMCreateMemoryBufferWithContentsOfFile(new BytePointer(path), module, message);
+	if (hasError == 1) {
+		throw new Exception("Could not load bitcode file");
+	}
+	LLVMModuleRef moduleRef = new LLVMModuleRef();
+	hasError = LLVMParseBitcode(module, moduleRef, message);
+	if (hasError==1) {
+		throw new Exception("Could not load bitcode file");
+	}
+	return moduleRef;
+}
+
+
+
+------------------------------------------------------------
+ C++
+------------------------------------------------------------
+
+In c++ you can either also use the c API, but the recommended approach is to write a module pass and run it via the opt command.
+
+Official docs:
+http://llvm.org/docs/WritingAnLLVMPass.html
+
+A short tutorial:
+https://www.cs.cornell.edu/~asampson/blog/llvm.html
