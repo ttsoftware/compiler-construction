@@ -1,8 +1,5 @@
 package compiler;
 
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.presets.LLVM;
-
 import java.io.File;
 import java.util.HashMap;
 
@@ -18,12 +15,12 @@ public class Main {
         LLVMInitializeNativeAsmParser();
         LLVMInitializeNativeDisassembler();
         LLVMInitializeNativeTarget();
-
-        HashMap<String, Boolean> nullPointerMap = new HashMap<>();
-
+        
         LLVMModuleRef module = ModuleLoader.loadModuleFromFile(filePath);
         for (LLVMValueRef func = LLVMGetFirstFunction(module); func != null; func = LLVMGetNextFunction(func)) {
             LLVMDumpValue(func);
+
+            HashMap<String, Boolean> nullPointerMap = new HashMap<>();
             for (LLVMBasicBlockRef bb = LLVMGetFirstBasicBlock(func); bb != null; bb = LLVMGetNextBasicBlock(bb)) {
                 for (LLVMValueRef instruction = LLVMGetFirstInstruction(bb); instruction != null; instruction = LLVMGetNextInstruction(instruction)) {
 
@@ -65,7 +62,7 @@ public class Main {
 
                         if (nullPointerMap.containsKey(variableName) && nullPointerMap.get(variableName)) {
 
-                            String intermediateRepresentation =  LLVMPrintValueToString(instruction).getString();
+                            String intermediateRepresentation = LLVMPrintValueToString(instruction).getString();
 
                             throw new NullPointerException("Trying to deference " + variableName + " but got NULL, at:\n " + intermediateRepresentation);
                         }
