@@ -7,3 +7,4 @@ target/
 *.log
 *.out
 *.bc
+cmake-build-debug/

@@ -15,7 +15,7 @@ public class Main {
         LLVMInitializeNativeAsmParser();
         LLVMInitializeNativeDisassembler();
         LLVMInitializeNativeTarget();
-        
+
         LLVMModuleRef module = ModuleLoader.loadModuleFromFile(filePath);
         for (LLVMValueRef func = LLVMGetFirstFunction(module); func != null; func = LLVMGetNextFunction(func)) {
             LLVMDumpValue(func);
