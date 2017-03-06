@@ -10,6 +10,9 @@ target_compile_features(SkeletonPass PRIVATE cxx_range_for cxx_auto_type)
 # otherwise, we'll get linker errors about missing RTTI data.
 set_target_properties(SkeletonPass PROPERTIES
     COMPILE_FLAGS "-fno-rtti"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
 # Get proper shared-library behavior (where symbols are not necessarily
