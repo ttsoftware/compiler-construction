@@ -9,7 +9,7 @@
     <module name="" />
     <envs />
     <method>
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build All" run_configuration_type="CMakeRunConfiguration" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build" run_configuration_type="BashConfigurationType" />
     </method>
   </configuration>
 </component>
