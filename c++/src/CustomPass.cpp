@@ -7,10 +7,10 @@
 using namespace llvm;
 
 namespace {
-    struct SkeletonPass : public FunctionPass {
+    struct CustomPass : public FunctionPass {
         static char ID;
 
-        SkeletonPass() : FunctionPass(ID) {}
+        CustomPass() : FunctionPass(ID) {}
 
         virtual bool runOnFunction(Function &F) {
             errs() << "I saw a function called " << F.getName() << "!\n";
@@ -19,15 +19,15 @@ namespace {
     };
 }
 
-char SkeletonPass::ID = 0;
+char CustomPass::ID = 0;
 
 // Automatically enable the pass.
 // http://adriansampson.net/blog/clangpass.html
-static void registerSkeletonPass(const PassManagerBuilder &,
-                                 legacy::PassManagerBase &PM) {
-    PM.add(new SkeletonPass());
+static void registerCustomPass(const PassManagerBuilder &, legacy::PassManagerBase &PM) {
+    PM.add(new CustomPass());
 }
 
-static RegisterStandardPasses
-        RegisterMyPass(PassManagerBuilder::EP_EarlyAsPossible,
-                       registerSkeletonPass);
+static RegisterStandardPasses RegisterMyPass(
+        PassManagerBuilder::EP_EarlyAsPossible,
+        registerCustomPass
+);
