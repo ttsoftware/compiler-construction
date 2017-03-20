@@ -14,8 +14,8 @@ namespace {
     struct CustomPass : public FunctionPass {
 
         static char ID;
-        Value* nullPointerPointer2 = nullptr;
-        Value* nullPointerPointer = nullPointerPointer2;
+        // This is our "sentinel value".
+        Value* nullPointerPointer = (Value*) 4095;
 
         CustomPass() : FunctionPass(ID) {}
 
@@ -46,12 +46,15 @@ namespace {
                     // check if a store instruction
                     if (auto* storeInstruction = dyn_cast<StoreInst>(&instruction)) {
 
-                        // cast operand to constant
+                        // cast operand to constant. _Why_?
                         if (auto* nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
 
                             // the instruction is storing null
                             if (nullStore->isNullValue()) {
                                 nullPointerMap[storeInstruction->getOperand(1)] = nullPointerPointer;
+                            } else {
+                                // If pointer is NOT null, we add it to the nullPointerMap. We are pretty sure this is needed!
+                                nullPointerMap[storeInstruction->getOperand(1)] = nullStore;
                             }
                         }
                         else {
@@ -69,10 +72,11 @@ namespace {
 
                         nullPointerMap[loadInstruction] = nullPointerMap[loadInstruction->getOperand(0)];
 
-                        if (nullPointerMap[loadInstruction->getOperand(0)] == nullPointerPointer2) {
-
+                        if (nullPointerMap[loadInstruction->getOperand(0)] == nullPointerPointer) {
+                            errs() << "Null pointer dereferenced!!! BAD \n";
                         }
                         else {
+                            errs() << "Derefenced a legal pointer\n";
                         }
                     }
                 }
