@@ -9,19 +9,84 @@
 
 using namespace llvm;
 
+
+
+
 namespace {
+
+
+    Value* nullPointerPointer = (Value*) 4095;
+    Value* isNull = (Value*) 52428;
+    Value* unknown = (Value*) 999999;
+
+
+    class VariableEntry {
+        bool isPointer;
+        Value* self;
+        Value* var;
+
+    public:
+        VariableEntry(Value* var,bool isPointer) {
+            this->isPointer = isPointer;
+            this->var = var;
+        }
+
+        Value* getVar() {
+            return this->var;
+        }
+
+        bool isPtr() {
+            return this->isPointer;
+        }
+
+    };
+
+
+
+    class NullPointerMap {
+
+        std::unordered_map<Value*,VariableEntry*> map;
+
+
+    public:
+        void set(Value* key,Value* val, bool isPointer) {
+            VariableEntry* ventry = new VariableEntry(val,isPointer);
+            map[key] = ventry;
+        }
+
+        void set(Value* key,Value* val) {
+            bool isPointer = map[key]->isPtr();
+            VariableEntry* ventry = new VariableEntry(val,isPointer);
+            map[key] = ventry;
+        }
+
+        VariableEntry* get(Value* var) {
+            return map[var];
+        }
+
+        bool entryIsPointer(Value* var) {
+            return map[var]->isPtr();
+        }
+
+        bool entryIsNull(Value* var) {
+            return map[var]->getVar() == isNull;
+        }
+    };
 
     struct CustomPass : public FunctionPass {
 
         static char ID;
         // This is our "sentinel value".
-        Value* nullPointerPointer = (Value*) 4095;
+
 
         CustomPass() : FunctionPass(ID) {}
 
         virtual bool runOnFunction(Function& function) {
 
             std::unordered_map<Value*, Value*> nullPointerMap;
+            std::unordered_map<Value*, bool> isAPointerMap;
+
+            NullPointerMap myMap;
 
             errs() << "" << function.getName() << " body:\n";
             function.dump();
@@ -39,7 +104,10 @@ namespace {
                         bool isPointer =
                                 allocaInstruction->getAllocatedType()->getTypeID() == llvm::Type::TypeID::PointerTyID;
                         if (isPointer) {
-                            nullPointerMap[allocaInstruction] = nullPointerPointer;
+                            myMap.set(allocaInstruction,unknown,true);
+                        } else {
+                            // Add allocainstruction to the map, but set it to a value that indicates that it's not a pointer?.
+                            myMap.set(allocaInstruction,unknown,false);
                         }
                     }
 
@@ -48,18 +116,29 @@ namespace {
 
                         // cast operand to constant. _Why_?
                         if (auto* nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
-
+                            errs() << *nullStore << "     CONSTANT\n";
                             // the instruction is storing null
                             if (nullStore->isNullValue()) {
-                                nullPointerMap[storeInstruction->getOperand(1)] = nullPointerPointer;
+                                errs() << *nullStore << " VAR IS NULL\n";
+                                myMap.set(
+                                        storeInstruction->getOperand(1),
+                                        nullPointerPointer
+                                );
+
                             } else {
-                                // If pointer is NOT null, we add it to the nullPointerMap. We are pretty sure this is needed!
-                                nullPointerMap[storeInstruction->getOperand(1)] = nullStore;
+                                myMap.set(
+                                        storeInstruction->getOperand(1),
+                                        storeInstruction->getOperand(0)
+                                );
+                                //nullPointerMap[storeInstruction->getOperand(1)] = ;
                             }
                         }
                         else {
                             // if not a constant, we want pointer reference
-                            nullPointerMap[storeInstruction->getOperand(1)] = nullPointerMap[storeInstruction->getOperand(0)];
+                            myMap.set(
+                                    storeInstruction->getOperand(1),
+                                    storeInstruction->getOperand(0)
+                            );
                         }
                     }
 
@@ -70,14 +149,13 @@ namespace {
                         errs() << *loadInstruction->getOperand(0) << "\n";
                         errs() << nullPointerMap[loadInstruction->getOperand(0)] << "\n";
 
-                        nullPointerMap[loadInstruction] = nullPointerMap[loadInstruction->getOperand(0)];
-
-                        if (nullPointerMap[loadInstruction->getOperand(0)] == nullPointerPointer) {
-                            errs() << "Null pointer dereferenced!!! BAD \n";
-                        }
-                        else {
-                            errs() << "Derefenced a legal pointer\n";
-                        }
+                        if(myMap.entryIsNull(loadInstruction->getOperand(0))) {
+                            errs() << "FAILURE\n";
+                        } else if (myMap.get(loadInstruction->getOperand(0))->getVar() == nullPointerPointer) {
+                            myMap.set(loadInstruction,isNull);
+                        } else {
+                            myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar());
+                        };
                     }
                 }
             }
@@ -85,6 +163,8 @@ namespace {
             return false;
         }
     };
+
+
 }
 
 char CustomPass::ID = 0;

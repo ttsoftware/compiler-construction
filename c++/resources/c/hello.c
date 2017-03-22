@@ -1,12 +1,10 @@
 #include<stdio.h>
 
 int main() {
-    char a = NULL;
-    char *b = NULL;
-    //char *l = b;
-    char x = 1;
-    b = &x;
-    char c = *b + 0x01;
-
-    return 1;
+    int a;
+    int b;
+    b = 1;
+    int* l;
+    int* k = NULL;
+    l = k;
 }
