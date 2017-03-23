@@ -6,6 +6,7 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 #include <unordered_map>
+#include <string.h>
 
 using namespace llvm;
 
@@ -18,6 +19,28 @@ namespace {
     Value* nullPointerPointer = (Value*) 4095;
     Value* isNull = (Value*) 52428;
     Value* unknown = (Value*) 999999;
+
+    class MyLogger {
+        bool logIsOn;
+
+    public:
+
+        MyLogger() {
+            this->logIsOn = true;
+        }
+
+        void log(std::string msg) {
+            if (this->logIsOn) {
+                errs() << msg << "\n";
+            }
+            return;
+        }
+
+        void toggleLog(bool logEnabled) {
+            this->logIsOn = logEnabled;
+            return;
+        }
+    };
 
 
     class VariableEntry {
@@ -76,15 +99,18 @@ namespace {
     struct CustomPass : public FunctionPass {
 
         static char ID;
-        // This is our "sentinel value".
+
+
+
 
 
         CustomPass() : FunctionPass(ID) {}
 
         virtual bool runOnFunction(Function& function) {
 
-            std::unordered_map<Value*, Value*> nullPointerMap;
-            std::unordered_map<Value*, bool> isAPointerMap;
+            MyLogger logger;
+            logger.toggleLog(false);
+
 
             NullPointerMap myMap;
 
@@ -119,7 +145,8 @@ namespace {
 //                            errs() << *nullStore << "     CONSTANT\n";
                             // the instruction is storing null
                             if (nullStore->isNullValue()) {
-//                                errs() << *nullStore << " VAR IS NULL\n";
+//                            errs() << *nullStore << "     is NULL\n";
+
                                 myMap.set(
                                         storeInstruction->getOperand(1),
                                         nullPointerPointer
@@ -130,13 +157,12 @@ namespace {
                                         storeInstruction->getOperand(1),
                                         storeInstruction->getOperand(0)
                                 );
-                                //nullPointerMap[storeInstruction->getOperand(1)] = ;
                             }
                         }
                         else {
                             // if not a constant, we want pointer reference
-                            errs() << "setting " << *(storeInstruction->getOperand(1)) << "\n";
-                            errs() << "to " << myMap.get((storeInstruction->getOperand(0)))->getVar() << "\n";
+//                            errs() << "setting " << *(storeInstruction->getOperand(1)) << "\n";
+//                            errs() << "to " << myMap.get((storeInstruction->getOperand(0)))->getVar() << "\n";
                             if (myMap.get((storeInstruction->getOperand(0)))->getVar() == isNull) {
                                 myMap.set(
                                         storeInstruction->getOperand(1),
@@ -157,7 +183,6 @@ namespace {
 
 //                        errs() << *loadInstruction << "\n";
 //                        errs() << *loadInstruction->getOperand(0) << "\n";
-//                        errs() << nullPointerMap[loadInstruction->getOperand(0)] << "\n";
 
 
                         if(myMap.entryIsNull(loadInstruction->getOperand(0))) {
@@ -168,14 +193,14 @@ namespace {
                             myMap.set(loadInstruction,isNull,false);
                         } else if (myMap.get(loadInstruction->getOperand(0))->getVar() == nullPointerPointer) {
 //                            myMap.set(loadInstruction,isNull);
-                            errs() << "Setting: " << *loadInstruction << "\n";
-                            errs() << "To: " << "isNull" << "\n";
+//                            errs() << "Setting: " << *loadInstruction << "\n";
+//                            errs() << "To: " << "isNull" << "\n";
 
                             myMap.set(loadInstruction,isNull,false);
                         } else {
 //                            myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar());
-                            errs() << "Setting: " << *loadInstruction << "\n";
-                            errs() << "To: " << *myMap.get(loadInstruction->getOperand(0))->getVar() << "\n";
+//                            errs() << "Setting: " << *loadInstruction << "\n";
+//                            errs() << "To: " << *myMap.get(loadInstruction->getOperand(0))->getVar() << "\n";
                             myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar(),false);
                         };
                     }
