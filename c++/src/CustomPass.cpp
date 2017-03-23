@@ -116,10 +116,10 @@ namespace {
 
                         // cast operand to constant. _Why_?
                         if (auto* nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
-                            errs() << *nullStore << "     CONSTANT\n";
+//                            errs() << *nullStore << "     CONSTANT\n";
                             // the instruction is storing null
                             if (nullStore->isNullValue()) {
-                                errs() << *nullStore << " VAR IS NULL\n";
+//                                errs() << *nullStore << " VAR IS NULL\n";
                                 myMap.set(
                                         storeInstruction->getOperand(1),
                                         nullPointerPointer
@@ -135,26 +135,48 @@ namespace {
                         }
                         else {
                             // if not a constant, we want pointer reference
-                            myMap.set(
-                                    storeInstruction->getOperand(1),
-                                    storeInstruction->getOperand(0)
-                            );
+                            errs() << "setting " << *(storeInstruction->getOperand(1)) << "\n";
+                            errs() << "to " << myMap.get((storeInstruction->getOperand(0)))->getVar() << "\n";
+                            if (myMap.get((storeInstruction->getOperand(0)))->getVar() == isNull) {
+                                myMap.set(
+                                        storeInstruction->getOperand(1),
+                                        nullPointerPointer
+                                );
+                            } else {
+                                myMap.set(
+                                        storeInstruction->getOperand(1),
+                                        myMap.get((storeInstruction->getOperand(0)))->getVar()
+                                );
+                            }
+
                         }
                     }
 
                     // check if a load instruction
                     if (auto* loadInstruction = dyn_cast<LoadInst>(&instruction)) {
 
-                        errs() << *loadInstruction << "\n";
-                        errs() << *loadInstruction->getOperand(0) << "\n";
-                        errs() << nullPointerMap[loadInstruction->getOperand(0)] << "\n";
+//                        errs() << *loadInstruction << "\n";
+//                        errs() << *loadInstruction->getOperand(0) << "\n";
+//                        errs() << nullPointerMap[loadInstruction->getOperand(0)] << "\n";
+
 
                         if(myMap.entryIsNull(loadInstruction->getOperand(0))) {
-                            errs() << "FAILURE\n";
+                            errs() << "FAILURE:\n";
+                            errs() << "Tried to dereference a variable: " << *loadInstruction->getOperand(0) << "\n";
+                            errs() << "On the following instruction: " << *loadInstruction << "\n";
+                            errs() << "But " << *loadInstruction->getOperand(0) << " is null!\n";
+                            myMap.set(loadInstruction,isNull,false);
                         } else if (myMap.get(loadInstruction->getOperand(0))->getVar() == nullPointerPointer) {
-                            myMap.set(loadInstruction,isNull);
+//                            myMap.set(loadInstruction,isNull);
+                            errs() << "Setting: " << *loadInstruction << "\n";
+                            errs() << "To: " << "isNull" << "\n";
+
+                            myMap.set(loadInstruction,isNull,false);
                         } else {
-                            myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar());
+//                            myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar());
+                            errs() << "Setting: " << *loadInstruction << "\n";
+                            errs() << "To: " << *myMap.get(loadInstruction->getOperand(0))->getVar() << "\n";
+                            myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar(),false);
                         };
                     }
                 }
