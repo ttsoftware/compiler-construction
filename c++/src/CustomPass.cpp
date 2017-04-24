@@ -108,10 +108,6 @@ namespace {
 
         virtual bool runOnFunction(Function& function) {
 
-            MyLogger logger;
-            logger.toggleLog(false);
-
-
             NullPointerMap myMap;
 
             errs() << "" << function.getName() << " body:\n";
