@@ -119,6 +119,9 @@ namespace {
                 // each instruction
                 for (auto& instruction : block) {
 
+                    errs() << instruction << "  >>>>>>>instruction\n";
+
+
                     // check if an allocation instruction
                     if (auto* allocaInstruction = dyn_cast<AllocaInst>(&instruction)) {
 
@@ -135,7 +138,7 @@ namespace {
 
                     // check if a store instruction
                     if (auto* storeInstruction = dyn_cast<StoreInst>(&instruction)) {
-
+                        errs() << *storeInstruction << " HALLO\n";
                         // cast operand to constant. _Why_?
                         if (auto* nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
 //                            errs() << *nullStore << "     CONSTANT\n";
