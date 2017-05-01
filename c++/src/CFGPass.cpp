@@ -6,91 +6,23 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 #include <list>
-#include <string.h>
 #include <unordered_map>
 #include <queue>
 #include <iostream>
-
-
-
-
-#include "llvm/IR/CFG.h"
 #include "llvm/Analysis/CFG.h"
-
-
+#include "NullPointerMap.cpp"
 
 using namespace llvm;
 
 namespace {
 
-    Value* nullPointerPointer = (Value*) 4095;
-    Value* isNull = (Value*) 52428;
-    Value* unknown = (Value*) 999999;
-
-    class VariableEntry {
-        bool isPointer;
-        Value* self;
-        Value* var;
-
-    public:
-        VariableEntry(Value* var,bool isPointer) {
-            this->isPointer = isPointer;
-            this->var = var;
-        }
-
-        Value* getVar() {
-            return this->var;
-        }
-
-        bool isPtr() {
-            return this->isPointer;
-        }
-
-    };
-
-    class NullPointerMap {
-
-        std::unordered_map<Value*,VariableEntry*> map;
-
-
-    public:
-        void set(Value* key,Value* val, bool isPointer) {
-            VariableEntry* ventry = new VariableEntry(val,isPointer);
-            map[key] = ventry;
-        }
-
-        void set(Value* key,Value* val) {
-//            errs() << "KEYSTART\n" << *key << "   KEYEND\n";
-//            errs() << "VALUESTART\n" << *val << "   VALUEEND\n";
-            bool isPointer = map[key]->isPtr();
-            VariableEntry* ventry = new VariableEntry(val,isPointer);
-            map[key] = ventry;
-        }
-
-        VariableEntry* get(Value* var) {
-            return map[var];
-        }
-
-        bool entryIsPointer(Value* var) {
-            return map[var]->isPtr();
-        }
-
-        bool entryIsNull(Value* var) {
-            return map[var]->getVar() == isNull;
-        }
-
-        std::unordered_map<Value*, VariableEntry*> getInnerMap() {
-            return map;
-        };
-    };
-
     void processInstruction(Instruction instruction,NullPointerMap* currentKnowledge) {
         // TODO: FIX SO IT CAN WORK ON WHAT COMES OUT OF THE AUTO LOOP!
     };
-
+/*
     NullPointerMap processBlock(BasicBlock* block,NullPointerMap currentKnowledge) {
 
-        errs() << *block;
+//        errs() << *block;
 
         for (Instruction& instruction : *block) {
 
@@ -176,19 +108,19 @@ namespace {
 
         return currentKnowledge;
     }
-
+*/
     struct worklistElement {
         BasicBlock* bb;
         NullPointerMap knowledge;
     };
 
-    bool nullPointerMapCompare(NullPointerMap m1, NullPointerMap m2) {
-        auto innerMap1 = m1.getInnerMap();
-        auto innerMap2 = m2.getInnerMap();
-        for (auto kv : innerMap1) {
-
-        }
-    }
+//    bool nullPointerMapCompare(NullPointerMap m1, NullPointerMap m2) {
+//        auto innerMap1 = m1.getInnerMap();
+//        auto innerMap2 = m2.getInnerMap();
+//        for (auto kv : innerMap1) {
+//            kv.first
+//        }
+//    }
 
     struct CFGPass : public FunctionPass {
 
@@ -196,7 +128,7 @@ namespace {
         CFGPass() : FunctionPass(ID) {}
 
         virtual bool runOnFunction(Function& function) {
-
+/*
             NullPointerMap myMap;
 
 //            errs() << "" << function.getName() << " body:\n";
@@ -219,11 +151,25 @@ namespace {
                 NullPointerMap newKnowledge;
                 newKnowledge = processBlock(currentElem.bb,currentElem.knowledge);
 
+                auto innerMapOldKnowledge = currentElem.knowledge.getInnerMap();
+                auto innerMapNewKnowledge = newKnowledge.getInnerMap();
+                for (auto kv : innerMapOldKnowledge) {
+                    if (innerMapNewKnowledge.find(kv.first) != innerMapNewKnowledge.end()) {
+                        // Old key exists in new knowledge
+//                        if (innerMapNewKnowledge[kv.first])
+                    }
+
+                }
+
+                //if( newKnowledge > currentElem.knowledge) {
+                //  Add successor of  bb to worklist.
+                //}
+
 
             }
 
-            errs() << "" << *entryBlock << " ENTRY BLOCK";
-
+//            errs() << "" << *entryBlock << " ENTRY BLOCK";
+*/
             return false;
         }
 

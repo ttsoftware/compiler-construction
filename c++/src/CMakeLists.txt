@@ -3,7 +3,7 @@ add_library(
         CFGPass MODULE
         # List your source files here.
         # CustomPass.cpp
-        CFGPass.cpp)
+        CFGPass.cpp NullPointerMap.cpp VariableEntry.cpp LatticeValue.cpp)
 
 add_library(
          CustomPass MODULE
