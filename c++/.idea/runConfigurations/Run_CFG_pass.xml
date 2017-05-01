@@ -5,7 +5,7 @@
     <option name="WORKING_DIRECTORY" value="" />
     <option name="PARENT_ENVS" value="true" />
     <option name="SCRIPT_NAME" value="run_CFG_pass.sh" />
-    <option name="PARAMETERS" value="c/hello.c" />
+    <option name="PARAMETERS" value="c/helloCFG.c" />
     <module name="" />
     <envs />
     <method>
