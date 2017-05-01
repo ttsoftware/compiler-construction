@@ -49,11 +49,8 @@ namespace {
                     errs() << *storeInstruction << " HALLO\n";
                     // cast operand to constant. _Why_?
                     if (auto *nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
-//                            errs() << *nullStore << "     CONSTANT\n";
                         // the instruction is storing null
                         if (nullStore->isNullValue()) {
-//                            errs() << *nullStore << "     is NULL\n";
-
                             myMap.set(
                                     storeInstruction->getOperand(1),
                                     nullPointerPointer
@@ -66,9 +63,6 @@ namespace {
                             );
                         }
                     } else {
-                        // if not a constant, we want pointer reference
-//                            errs() << "setting " << *(storeInstruction->getOperand(1)) << "\n";
-//                            errs() << "to " << myMap.get((storeInstruction->getOperand(0)))->getVar() << "\n";
                         if (myMap.get((storeInstruction->getOperand(0)))->getVar() == isNull) {
                             myMap.set(
                                     storeInstruction->getOperand(1),
@@ -87,9 +81,6 @@ namespace {
                 // check if a load instruction
                 if (auto *loadInstruction = dyn_cast<LoadInst>(&instruction)) {
 
-//                        errs() << *loadInstruction << "\n";
-//                        errs() << *loadInstruction->getOperand(0) << "\n";
-
                     if (myMap.entryIsNull(loadInstruction->getOperand(0))) {
                         errs() << "FAILURE:\n";
                         errs() << "Tried to dereference a variable: " << *loadInstruction->getOperand(0) << "\n";
@@ -97,15 +88,8 @@ namespace {
                         errs() << "But " << *loadInstruction->getOperand(0) << " is null!\n";
                         myMap.set(loadInstruction, isNull, false);
                     } else if (myMap.get(loadInstruction->getOperand(0))->getVar() == nullPointerPointer) {
-//                            myMap.set(loadInstruction,isNull);
-//                            errs() << "Setting: " << *loadInstruction << "\n";
-//                            errs() << "To: " << "isNull" << "\n";
-
                         myMap.set(loadInstruction, isNull, false);
                     } else {
-//                            myMap.set(loadInstruction,myMap.get(loadInstruction->getOperand(0))->getVar());
-//                            errs() << "Setting: " << *loadInstruction << "\n";
-//                            errs() << "To: " << *myMap.get(loadInstruction->getOperand(0))->getVar() << "\n";
                         myMap.set(loadInstruction, myMap.get(loadInstruction->getOperand(0))->getVar(), false);
                     };
                 }
@@ -117,8 +101,6 @@ namespace {
 
 char CustomPass::ID = 0;
 
-// Automatically enable the pass.
-// http://adriansampson.net/blog/clangpass.html
 static void registerCustomPass(const PassManagerBuilder &, legacy::PassManagerBase &PM) {
     PM.add(new CustomPass());
 }

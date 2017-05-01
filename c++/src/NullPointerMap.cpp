@@ -17,35 +17,33 @@ class NullPointerMap {
     Value *isNull = (Value *) 52428;
     Value *unknown = (Value *) 999999;
 
-    std::unordered_map<Value*,VariableEntry*> map;
+    std::unordered_map<Value *, VariableEntry *> map;
 
 public:
-    void set(Value* key,Value* val, bool isPointer) {
-        VariableEntry* ventry = new VariableEntry(val,isPointer);
+    void set(Value *key, Value *val, bool isPointer) {
+        VariableEntry *ventry = new VariableEntry(val, isPointer);
         map[key] = ventry;
     }
 
-    void set(Value* key,Value* val) {
-//            errs() << "KEYSTART\n" << *key << "   KEYEND\n";
-//            errs() << "VALUESTART\n" << *val << "   VALUEEND\n";
+    void set(Value *key, Value *val) {
         bool isPointer = map[key]->isPtr();
-        VariableEntry* ventry = new VariableEntry(val,isPointer);
+        VariableEntry *ventry = new VariableEntry(val, isPointer);
         map[key] = ventry;
     }
 
-    VariableEntry* get(Value* var) {
+    VariableEntry *get(Value *var) {
         return map[var];
     }
 
-    bool entryIsPointer(Value* var) {
+    bool entryIsPointer(Value *var) {
         return map[var]->isPtr();
     }
 
-    bool entryIsNull(Value* var) {
+    bool entryIsNull(Value *var) {
         return map[var]->getVar() == isNull;
     }
 
-    std::unordered_map<Value*, VariableEntry*> getInnerMap() {
+    std::unordered_map<Value *, VariableEntry *> getInnerMap() {
         return map;
     };
 };

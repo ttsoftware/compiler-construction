@@ -3,6 +3,8 @@
 *.bc
 *.out
 *.so
+*.o
+*.ll
 cmake-build-debug/
 CMakeFiles
 CMakeCache.txt
