@@ -3,7 +3,7 @@ add_library(
         CFGPass MODULE
         # List your source files here.
         # CustomPass.cpp
-        CFGPass.cpp NullPointerMap.cpp VariableEntry.cpp LatticeValue.cpp)
+        CFGPass.cpp NullPointerMap.cpp VariableEntry.cpp LatticeValue.cpp NullPointerDetector.cpp)
 
 add_library(
          CustomPass MODULE
@@ -11,7 +11,7 @@ add_library(
         # List your source files here.
          CustomPass.cpp
         #CFGPass.cpp
-        )
+        NullPointerDetector.cpp)
 
 # Use C++11 to compile our pass (i.e., supply -std=c++11).
 target_compile_features(CustomPass PRIVATE cxx_range_for cxx_auto_type)

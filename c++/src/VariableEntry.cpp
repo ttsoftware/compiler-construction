@@ -24,5 +24,4 @@ public:
     bool isPtr() {
         return this->isPointer;
     }
-
 };

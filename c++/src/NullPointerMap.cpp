@@ -5,17 +5,12 @@
 #include <unordered_map>
 #include <queue>
 #include <iostream>
-
 #include "VariableEntry.cpp"
 #include "LatticeValue.cpp"
 
 using namespace llvm;
 
 class NullPointerMap {
-
-    Value *nullPointerPointer = (Value *) 4095;
-    Value *isNull = (Value *) 52428;
-    Value *unknown = (Value *) 999999;
 
     std::unordered_map<Value *, VariableEntry *> map;
 
@@ -40,7 +35,7 @@ public:
     }
 
     bool entryIsNull(Value *var) {
-        return map[var]->getVar() == isNull;
+        return map[var]->getVar() == (Value *) LatticeValue::IS_NULL;
     }
 
     std::unordered_map<Value *, VariableEntry *> getInnerMap() {
