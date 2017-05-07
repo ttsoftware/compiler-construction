@@ -13,15 +13,20 @@ class VariableEntry {
 public:
 
     bool isPointer;
-    Value *self;
-    Value *var;
+    Value* self;
+    Value* var;
 
     /*VariableEntry();*/
     VariableEntry(Value*, bool);
-    Value *getVar();
+
+    Value* getVar();
+
     bool isPtr();
+
     bool isMaybeNull();
+
     bool equals(VariableEntry);
+
     VariableEntry* merge(VariableEntry*);
 };
 

@@ -18,36 +18,36 @@ public:
      * @param nullPointerMap
      * @return
      */
-    static NullPointerMap detect(BasicBlock &block, NullPointerMap nullPointerMap) {
+    static NullPointerMap detect(BasicBlock& block, NullPointerMap nullPointerMap) {
 
         // each instruction
-        for (auto &instruction : block) {
+        for (auto& instruction : block) {
 
             errs() << instruction << "  >>>>>>>instruction\n";
 
             // check if an allocation instruction
-            if (auto *allocaInstruction = dyn_cast<AllocaInst>(&instruction)) {
+            if (auto* allocaInstruction = dyn_cast<AllocaInst>(&instruction)) {
 
                 // if the instruction is allocating a pointer, it is null
                 bool isPointer =
                         allocaInstruction->getAllocatedType()->getTypeID() == llvm::Type::TypeID::PointerTyID;
                 if (isPointer) {
-                    nullPointerMap.set(allocaInstruction, (Value *) Enums::LatticeValue::UNKNOWN, true);
+                    nullPointerMap.set(allocaInstruction, (Value*) Enums::LatticeValue::UNKNOWN, true);
                 } else {
                     // Add allocainstruction to the map, but set it to a value that indicates that it's not a pointer?.
-                    nullPointerMap.set(allocaInstruction, (Value *) Enums::LatticeValue::UNKNOWN, false);
+                    nullPointerMap.set(allocaInstruction, (Value*) Enums::LatticeValue::UNKNOWN, false);
                 }
             }
 
             // check if a store instruction
-            if (auto *storeInstruction = dyn_cast<StoreInst>(&instruction)) {
+            if (auto* storeInstruction = dyn_cast<StoreInst>(&instruction)) {
                 // cast operand to constant. _Why_?
-                if (auto *nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
+                if (auto* nullStore = dyn_cast<Constant>(storeInstruction->getOperand(0))) {
                     // the instruction is storing null
                     if (nullStore->isNullValue()) {
                         nullPointerMap.set(
                                 storeInstruction->getOperand(1),
-                                (Value *) Enums::LatticeValue::NULL_POINTER
+                                (Value*) Enums::LatticeValue::NULL_POINTER
                         );
 
                     } else {
@@ -58,10 +58,10 @@ public:
                     }
                 } else {
                     if (nullPointerMap.get((storeInstruction->getOperand(0)))->getVar() ==
-                        (Value *) Enums::LatticeValue::IS_NULL) {
+                        (Value*) Enums::LatticeValue::IS_NULL) {
                         nullPointerMap.set(
                                 storeInstruction->getOperand(1),
-                                (Value *) Enums::LatticeValue::NULL_POINTER
+                                (Value*) Enums::LatticeValue::NULL_POINTER
                         );
                     } else {
                         nullPointerMap.set(
@@ -74,14 +74,14 @@ public:
             }
 
             // check if a load instruction
-            if (auto *loadInstruction = dyn_cast<LoadInst>(&instruction)) {
+            if (auto* loadInstruction = dyn_cast<LoadInst>(&instruction)) {
 
-                if(nullPointerMap.entryisMaybeNull(loadInstruction->getOperand(0))) {
+                if (nullPointerMap.entryisMaybeNull(loadInstruction->getOperand(0))) {
                     errs() << "WARNING:\n";
                     errs() << "Dereferening a variable: " << *loadInstruction->getOperand(0) << "\n";
                     errs() << "On the following instruction: " << *loadInstruction << "\n";
                     errs() << "MIGHT result in null pointer exception.";
-                    nullPointerMap.set(loadInstruction, (Value *) Enums::LatticeValue::IS_NULL, false);
+                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
                 }
 
                 if (nullPointerMap.entryIsNull(loadInstruction->getOperand(0))) {
@@ -89,13 +89,13 @@ public:
                     errs() << "Tried to dereference a variable: " << *loadInstruction->getOperand(0) << "\n";
                     errs() << "On the following instruction: " << *loadInstruction << "\n";
                     errs() << "But " << *loadInstruction->getOperand(0) << " is null!\n";
-                    nullPointerMap.set(loadInstruction, (Value *) Enums::LatticeValue::IS_NULL, false);
-                }
-                else if (nullPointerMap.get(loadInstruction->getOperand(0))->getVar() == (Value *) Enums::LatticeValue::NULL_POINTER) {
-                    nullPointerMap.set(loadInstruction, (Value *) Enums::LatticeValue::IS_NULL, false);
-                }
-                else {
-                    nullPointerMap.set(loadInstruction, nullPointerMap.get(loadInstruction->getOperand(0))->getVar(), false);
+                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
+                } else if (nullPointerMap.get(loadInstruction->getOperand(0))->getVar() ==
+                           (Value*) Enums::LatticeValue::NULL_POINTER) {
+                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
+                } else {
+                    nullPointerMap.set(loadInstruction, nullPointerMap.get(loadInstruction->getOperand(0))->getVar(),
+                                       false);
                 };
             }
         }

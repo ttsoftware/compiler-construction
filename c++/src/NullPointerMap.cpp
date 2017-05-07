@@ -12,17 +12,17 @@ using namespace llvm;
 
 class NullPointerMap {
 
-    std::unordered_map<Value *, VariableEntry *> map;
+    std::unordered_map<Value*, VariableEntry*> map;
 
 public:
-    void set(Value *key, Value *val, bool isPointer) {
-        VariableEntry *ventry = new VariableEntry(val, isPointer);
+    void set(Value* key, Value* val, bool isPointer) {
+        VariableEntry* ventry = new VariableEntry(val, isPointer);
         map[key] = ventry;
     }
 
-    void set(Value *key, Value *val) {
+    void set(Value* key, Value* val) {
         bool isPointer = map[key]->isPtr();
-        VariableEntry *ventry = new VariableEntry(val, isPointer);
+        VariableEntry* ventry = new VariableEntry(val, isPointer);
         map[key] = ventry;
     }
 
@@ -30,29 +30,29 @@ public:
         map[key] = entry;
     }
 
-    VariableEntry *get(Value *var) {
+    VariableEntry* get(Value* var) {
         return map[var];
     }
 
-    bool entryIsPointer(Value *var) {
+    bool entryIsPointer(Value* var) {
         return map[var]->isPtr();
     }
 
-    bool entryIsNull(Value *var) {
-        return map[var]->getVar() == (Value *) Enums::LatticeValue::IS_NULL;
+    bool entryIsNull(Value* var) {
+        return map[var]->getVar() == (Value*) Enums::LatticeValue::IS_NULL;
     }
 
     bool entryisMaybeNull(Value* var) {
         return map[var]->isMaybeNull();
     }
 
-    std::unordered_map<Value *, VariableEntry *> getInnerMap() {
+    std::unordered_map<Value*, VariableEntry*> getInnerMap() {
         return map;
     };
 
     std::vector<Value*> getKeys() {
         std::vector<Value*> keys;
-        for ( auto it = map.begin(); it != map.end(); ++it ) {
+        for (auto it = map.begin(); it != map.end(); ++it) {
             keys.push_back(it->first);
         }
         return keys;
@@ -71,7 +71,7 @@ public:
                         thisMap[otherKeys[i]]
                 ));
             } catch (...) {
-                ret.set(otherKeys[i],otherMap[otherKeys[i]]);
+                ret.set(otherKeys[i], otherMap[otherKeys[i]]);
             }
         }
 
@@ -80,7 +80,7 @@ public:
             try {
                 VariableEntry* k = otherMap[thisKeys[i]];
             } catch (...) {
-                ret.set(thisKeys[i],thisMap[thisKeys[i]]);
+                ret.set(thisKeys[i], thisMap[thisKeys[i]]);
             }
         }
         return ret;

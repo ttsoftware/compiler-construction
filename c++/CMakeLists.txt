@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(LLVM_PATH /usr/lib/llvm-3.9)
+set(LLVM_PATH /usr/lib/llvm-3.8)
 
 find_package(LLVM REQUIRED CONFIG)
 add_definitions(${LLVM_DEFINITIONS})

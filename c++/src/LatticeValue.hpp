@@ -8,7 +8,9 @@
 
 namespace Enums {
 
-    enum LatticeValue { UNKNOWN, NOT_NULL, IS_NULL, MAYBE_NULL, NULL_POINTER };
+    enum LatticeValue {
+        UNKNOWN, NOT_NULL, IS_NULL, MAYBE_NULL, NULL_POINTER
+    };
 
 }
 

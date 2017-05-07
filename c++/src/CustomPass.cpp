@@ -16,7 +16,7 @@ namespace {
 
         CustomPass() : BasicBlockPass(ID) {}
 
-        virtual bool runOnBasicBlock(BasicBlock &block) {
+        virtual bool runOnBasicBlock(BasicBlock& block) {
 
             NullPointerMap nullPointerMap;
             NullPointerDetector::detect(block, nullPointerMap);
@@ -28,7 +28,7 @@ namespace {
 
 char CustomPass::ID = 0;
 
-static void registerCustomPass(const PassManagerBuilder &, legacy::PassManagerBase &PM) {
+static void registerCustomPass(const PassManagerBuilder&, legacy::PassManagerBase& PM) {
     PM.add(new CustomPass());
 }
 

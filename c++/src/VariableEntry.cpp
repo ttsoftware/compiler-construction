@@ -11,12 +11,12 @@ using namespace llvm;
 Value *self;
 Value *var;*/
 
-inline VariableEntry::VariableEntry(Value *var, bool isPointer) {
+inline VariableEntry::VariableEntry(Value* var, bool isPointer) {
     this->isPointer = isPointer;
     this->var = var;
 }
 
-Value *VariableEntry::getVar() {
+Value* VariableEntry::getVar() {
     return this->var;
 }
 
@@ -25,20 +25,20 @@ bool VariableEntry::isPtr() {
 }
 
 bool VariableEntry::isMaybeNull() {
-    return this->getVar() == (Value *) Enums::LatticeValue::MAYBE_NULL;
+    return this->getVar() == (Value*) Enums::LatticeValue::MAYBE_NULL;
 }
 
 bool VariableEntry::equals(VariableEntry other) {
     return this->var == other.getVar();
 }
 
-VariableEntry *VariableEntry::merge(VariableEntry *other) {
-    VariableEntry *ret = new VariableEntry(NULL, NULL);
+VariableEntry* VariableEntry::merge(VariableEntry* other) {
+    VariableEntry* ret = new VariableEntry(NULL, NULL);
     if (other->getVar() == this->getVar()) {
         ret->var = this->getVar();
         ret->isPointer = other->isPtr();
     } else {
-        ret->var = (Value *) Enums::LatticeValue::MAYBE_NULL;
+        ret->var = (Value*) Enums::LatticeValue::MAYBE_NULL;
     }
     return ret;
 }

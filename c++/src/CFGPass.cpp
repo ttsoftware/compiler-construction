@@ -11,7 +11,6 @@
 #include "NullPointerDetector.cpp"
 
 
-
 using namespace llvm;
 
 namespace {
@@ -24,6 +23,7 @@ namespace {
     struct CFGPass : public FunctionPass {
 
         static char ID;
+
         CFGPass() : FunctionPass(ID) {}
 
         virtual bool runOnFunction(Function& function) {
@@ -38,29 +38,33 @@ namespace {
                     knowledge
             };
             worklist.push(init);
-            std::unordered_map<BasicBlock*,NullPointerMap> blockKnowledge;
+            std::unordered_map<BasicBlock*, NullPointerMap> blockKnowledge;
 
+            // init the blockKnowledge map
             for (auto& block : function) {
                 NullPointerMap initKnowledge;
                 blockKnowledge[&block] = initKnowledge;
             }
 
-            while(!worklist.empty()) {
+            // iterate through successor tree
+            while (!worklist.empty()) {
+
                 BasicBlock& currentBlock = worklist.front().bb;
                 NullPointerMap currentKnowledge = worklist.front().knowledge;
                 worklist.pop();
+
                 NullPointerMap oldKnowledge = blockKnowledge[&currentBlock];
                 NullPointerMap mergedKnowledge = currentKnowledge.merge(oldKnowledge);
+
                 // PROCESS
                 // IF CHANGE: PUSH SUCCESSORS.
 
                 NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, currentKnowledge);
+
                 //if(change was found) {
                 //    addSccessortostack();
                 //}
-
             }
-
 
             /*BasicBlock& block = function.getEntryBlock();
 
