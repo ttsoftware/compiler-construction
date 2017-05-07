@@ -35,15 +35,18 @@ public:
     }
 
     bool entryIsPointer(Value* var) {
-        return map[var]->isPtr();
+        // Guard against nulls
+        return map[var] != NULL && map[var]->isPtr();
     }
 
     bool entryIsNull(Value* var) {
-        return map[var]->getVar() == (Value*) Enums::LatticeValue::IS_NULL;
+        // Guard against nulls
+        return map[var] != NULL && map[var]->getVar() == (Value*) Enums::LatticeValue::IS_NULL;
     }
 
     bool entryisMaybeNull(Value* var) {
-        return map[var]->isMaybeNull();
+        // Guard against nulls
+        return (map[var] != NULL) && map[var]->isMaybeNull();
     }
 
     std::unordered_map<Value*, VariableEntry*> getInnerMap() {

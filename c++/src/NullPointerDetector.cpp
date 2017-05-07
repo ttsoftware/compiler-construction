@@ -57,19 +57,23 @@ public:
                         );
                     }
                 } else {
-                    if (nullPointerMap.get((storeInstruction->getOperand(0)))->getVar() ==
-                        (Value*) Enums::LatticeValue::IS_NULL) {
-                        nullPointerMap.set(
-                                storeInstruction->getOperand(1),
-                                (Value*) Enums::LatticeValue::NULL_POINTER
-                        );
-                    } else {
-                        nullPointerMap.set(
-                                storeInstruction->getOperand(1),
-                                nullPointerMap.get((storeInstruction->getOperand(0)))->getVar()
-                        );
-                    }
+                    // TODO: Why does this cause segmentation fault on second iteration?
+                    // Guard against nulls
+                    if (nullPointerMap.get((storeInstruction->getOperand(0))) != NULL) {
 
+                        if (nullPointerMap.get((storeInstruction->getOperand(0)))->getVar() ==
+                            (Value*) Enums::LatticeValue::IS_NULL) {
+                            nullPointerMap.set(
+                                    storeInstruction->getOperand(1),
+                                    (Value*) Enums::LatticeValue::NULL_POINTER
+                            );
+                        } else {
+                            nullPointerMap.set(
+                                    storeInstruction->getOperand(1),
+                                    nullPointerMap.get((storeInstruction->getOperand(0)))->getVar()
+                            );
+                        }
+                    }
                 }
             }
 
@@ -84,19 +88,23 @@ public:
                     nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
                 }
 
-                if (nullPointerMap.entryIsNull(loadInstruction->getOperand(0))) {
-                    errs() << "FAILURE:\n";
-                    errs() << "Tried to dereference a variable: " << *loadInstruction->getOperand(0) << "\n";
-                    errs() << "On the following instruction: " << *loadInstruction << "\n";
-                    errs() << "But " << *loadInstruction->getOperand(0) << " is null!\n";
-                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
-                } else if (nullPointerMap.get(loadInstruction->getOperand(0))->getVar() ==
-                           (Value*) Enums::LatticeValue::NULL_POINTER) {
-                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
-                } else {
-                    nullPointerMap.set(loadInstruction, nullPointerMap.get(loadInstruction->getOperand(0))->getVar(),
-                                       false);
-                };
+                // Guard against nulls
+                if (nullPointerMap.get(loadInstruction->getOperand(0)) != NULL) {
+                    if (nullPointerMap.entryIsNull(loadInstruction->getOperand(0))) {
+                        errs() << "FAILURE:\n";
+                        errs() << "Tried to dereference a variable: " << *loadInstruction->getOperand(0) << "\n";
+                        errs() << "On the following instruction: " << *loadInstruction << "\n";
+                        errs() << "But " << *loadInstruction->getOperand(0) << " is null!\n";
+                        nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
+                    } else if (nullPointerMap.get(loadInstruction->getOperand(0))->getVar() ==
+                               (Value*) Enums::LatticeValue::NULL_POINTER) {
+                        nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
+                    } else {
+                        nullPointerMap.set(loadInstruction,
+                                           nullPointerMap.get(loadInstruction->getOperand(0))->getVar(),
+                                           false);
+                    };
+                }
             }
         }
 
@@ -120,9 +128,9 @@ public:
         std::vector<Value*> oldKeys = oldNpm.getKeys();
 
         // check if any of the old keys has changed
-        for (int i = 0; i < oldKeys.size(); ++i) {
+        for (int i = 0; i < oldKeys.size(); i++) {
             bool hasKey = false;
-            for (int j = 0; j < newKeys.size(); ++j) {
+            for (int j = 0; j < newKeys.size(); j++) {
                 hasKey = hasKey || (oldKeys[i] == newKeys[j]);
             }
 
@@ -136,9 +144,9 @@ public:
         }
 
         // check if there are new keys
-        for (int i = 0; i < newKeys.size(); ++i) {
+        for (int i = 0; i < newKeys.size(); i++) {
             bool hasKey = false;
-            for (int j = 0; j < oldKeys.size(); ++j) {
+            for (int j = 0; j < oldKeys.size(); j++) {
                 hasKey = hasKey || (newKeys[i] == oldKeys[j]);
             }
 

@@ -53,15 +53,15 @@ namespace {
                 NullPointerMap oldKnowledge = blockKnowledge[&currentBlock];
                 NullPointerMap mergedKnowledge = currentKnowledge.merge(oldKnowledge);
 
-                // what to do with newKnowledge?
-                NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, mergedKnowledge);
-
                 std::vector<Value*> mergedKeys = mergedKnowledge.getKeys();
                 errs() << mergedKeys.size() << " keys\n";
 
                 for (int i = 0; i < mergedKeys.size(); i++) {
                     errs() << " >> " << *(mergedKeys)[i] << "\n";
                 }
+
+                // what to do with newKnowledge?
+                NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, mergedKnowledge);
 
                 std::vector<Value*> newKeys = newKnowledge.getKeys();
                 errs() << newKeys.size() << " keys\n";
@@ -85,6 +85,7 @@ namespace {
                     for (unsigned i = 0, NSucc = terminator->getNumSuccessors(); i < NSucc; ++i) {
                         BasicBlock* successorBlock = terminator->getSuccessor(i);
 
+                        // add new element to worklist - and append newKnowledge?
                         worklist.push((WorklistElement) {*successorBlock, newKnowledge});
 
                         errs() << "BLCK: " << *successorBlock << "\n";

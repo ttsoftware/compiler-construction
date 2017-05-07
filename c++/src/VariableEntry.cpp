@@ -1,3 +1,4 @@
+#include <llvm/Support/raw_ostream.h>
 #include "llvm/Pass.h"
 #include "llvm/IR/Constant.h"
 #include "llvm/IR/Instructions.h"
@@ -29,13 +30,18 @@ bool VariableEntry::equals(VariableEntry other) {
 }
 
 VariableEntry* VariableEntry::merge(VariableEntry* other) {
-    VariableEntry* ret = new VariableEntry(NULL, NULL);
-    if (other->getVar() == this->getVar()) {
-        ret->var = this->getVar();
-        ret->isPointer = other->isPtr();
-    } else {
-        ret->var = (Value*) Enums::LatticeValue::MAYBE_NULL;
+    // Guard against nulls
+    if (other != NULL) {
+        VariableEntry* ret = new VariableEntry(NULL, NULL);
+
+        if (other->getVar() == this->getVar()) {
+            ret->var = this->getVar();
+            ret->isPointer = other->isPtr();
+        } else {
+            ret->var = (Value*) Enums::LatticeValue::MAYBE_NULL;
+        }
+        return ret;
     }
-    return ret;
+    return this;
 }
 
