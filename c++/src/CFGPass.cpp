@@ -31,14 +31,11 @@ namespace {
             // function.viewCFG();
 
             // Init the worklist
-            std::queue<WorklistElement> worklist;
             NullPointerMap knowledge;
-            WorklistElement init = {
-                    function.getEntryBlock(),
-                    knowledge
-            };
-            worklist.push(init);
+            std::queue<WorklistElement> worklist;
             std::unordered_map<BasicBlock*, NullPointerMap> blockKnowledge;
+
+            worklist.push((WorklistElement) {function.getEntryBlock(), knowledge});
 
             // init the blockKnowledge map
             for (auto& block : function) {
@@ -88,13 +85,9 @@ namespace {
                     for (unsigned i = 0, NSucc = terminator->getNumSuccessors(); i < NSucc; ++i) {
                         BasicBlock* successorBlock = terminator->getSuccessor(i);
 
-                        WorklistElement successorElement = {
-                                *successorBlock,
-                                newKnowledge
-                        };
-                        worklist.push(successorElement);
+                        worklist.push((WorklistElement) {*successorBlock, newKnowledge});
 
-                        errs() << *successorBlock << "\n";
+                        errs() << "BLCK: " << *successorBlock << "\n";
                     }
                 }
             }

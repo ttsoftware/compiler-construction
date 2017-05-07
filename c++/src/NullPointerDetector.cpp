@@ -23,7 +23,7 @@ public:
         // each instruction
         for (auto& instruction : block) {
 
-            errs() << instruction << "\n";
+            errs() << "INST: " << instruction << "\n";
 
             // check if an allocation instruction
             if (auto* allocaInstruction = dyn_cast<AllocaInst>(&instruction)) {
