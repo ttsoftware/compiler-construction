@@ -112,26 +112,39 @@ public:
      */
     static std::vector<Value*> compare(NullPointerMap newNpm, NullPointerMap oldNpm) {
 
-        std::vector<Value*> differences {};
+        std::vector<Value*> differences{};
 
         std::unordered_map<Value*, VariableEntry*> newMap = newNpm.getInnerMap();
-        std::unordered_map <Value*, VariableEntry*>oldMap = oldNpm.getInnerMap();
+        std::unordered_map<Value*, VariableEntry*> oldMap = oldNpm.getInnerMap();
         std::vector<Value*> newKeys = newNpm.getKeys();
         std::vector<Value*> oldKeys = oldNpm.getKeys();
 
-        // If keys1[i] = null &&
+        // check if any of the old keys has changed
         for (int i = 0; i < oldKeys.size(); ++i) {
-            Value* oldKey = oldKeys[i];
             bool hasKey = false;
             for (int j = 0; j < newKeys.size(); ++j) {
-                hasKey = hasKey || (oldKey == newKeys[j]);
+                hasKey = hasKey || (oldKeys[i] == newKeys[j]);
             }
 
             if (hasKey) {
-                VariableEntry newVarEntry = *(newMap.at(oldKey));
-                if (!newVarEntry.equals(*(oldMap.at(oldKey)))) {
-                    differences.push_back(oldKey);
+                VariableEntry newVarEntry = *(newMap.at(oldKeys[i]));
+                if (!newVarEntry.equals(*(oldMap.at(oldKeys[i])))) {
+                    // newkey has changed value
+                    differences.push_back(oldKeys[i]);
                 }
+            }
+        }
+
+        // check if there are new keys
+        for (int i = 0; i < newKeys.size(); ++i) {
+            bool hasKey = false;
+            for (int j = 0; j < oldKeys.size(); ++j) {
+                hasKey = hasKey || (newKeys[i] == oldKeys[j]);
+            }
+
+            if (!hasKey) {
+                // new key does not exist in old keyset
+                differences.push_back(newKeys[i]);
             }
         }
 

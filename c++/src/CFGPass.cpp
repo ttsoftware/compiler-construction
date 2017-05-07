@@ -59,14 +59,27 @@ namespace {
                 // what to do with newKnowledge?
                 NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, mergedKnowledge);
 
+                std::vector<Value*> mergedKeys = mergedKnowledge.getKeys();
+                errs() << mergedKeys.size() << " keys\n";
+
+                for (int i = 0; i < mergedKeys.size(); i++) {
+                    errs() << " >> " << *(mergedKeys)[i] << "\n";
+                }
+
                 std::vector<Value*> newKeys = newKnowledge.getKeys();
                 errs() << newKeys.size() << " keys\n";
-                
+
+                for (int i = 0; i < newKeys.size(); i++) {
+                    errs() << " >> " << *(newKeys)[i] << "\n";
+                }
+
                 // update the blockMap ?
                 blockKnowledge[&currentBlock] = newKnowledge;
 
                 // if merged knowledge is different, we add to stack ?
                 std::vector<Value*> differences = NullPointerDetector::compare(newKnowledge, mergedKnowledge);
+
+                errs() << differences.size() << " differences\n";
 
                 if (differences.size() > 0) {
                     // there was at least one difference - push all successors to worklist?
