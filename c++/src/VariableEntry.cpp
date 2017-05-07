@@ -7,10 +7,6 @@
 
 using namespace llvm;
 
-/*bool isPointer;
-Value *self;
-Value *var;*/
-
 inline VariableEntry::VariableEntry(Value* var, bool isPointer) {
     this->isPointer = isPointer;
     this->var = var;

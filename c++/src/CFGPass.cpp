@@ -28,7 +28,7 @@ namespace {
 
         virtual bool runOnFunction(Function& function) {
 
-            /*function.viewCFG();*/
+            // function.viewCFG();
 
             // Init the worklist
             std::queue<WorklistElement> worklist;
@@ -56,24 +56,35 @@ namespace {
                 NullPointerMap oldKnowledge = blockKnowledge[&currentBlock];
                 NullPointerMap mergedKnowledge = currentKnowledge.merge(oldKnowledge);
 
-                // PROCESS
-                // IF CHANGE: PUSH SUCCESSORS.
+                // what to do with newKnowledge?
+                NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, mergedKnowledge);
 
-                NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, currentKnowledge);
+                std::vector<Value*> newKeys = newKnowledge.getKeys();
+                errs() << newKeys.size() << " keys\n";
+                
+                // update the blockMap ?
+                blockKnowledge[&currentBlock] = newKnowledge;
 
-                //if(change was found) {
-                //    addSccessortostack();
-                //}
+                // if merged knowledge is different, we add to stack ?
+                std::vector<Value*> differences = NullPointerDetector::compare(newKnowledge, mergedKnowledge);
+
+                if (differences.size() > 0) {
+                    // there was at least one difference - push all successors to worklist?
+                    TerminatorInst* terminator = currentBlock.getTerminator();
+
+                    for (unsigned i = 0, NSucc = terminator->getNumSuccessors(); i < NSucc; ++i) {
+                        BasicBlock* successorBlock = terminator->getSuccessor(i);
+
+                        WorklistElement successorElement = {
+                                *successorBlock,
+                                newKnowledge
+                        };
+                        worklist.push(successorElement);
+
+                        errs() << *successorBlock << "\n";
+                    }
+                }
             }
-
-            /*BasicBlock& block = function.getEntryBlock();
-
-            TerminatorInst* terminator = block.getTerminator();
-
-            for (unsigned i = 0, NSucc = terminator->getNumSuccessors(); i < NSucc; ++i) {
-                BasicBlock* blockChild= terminator->getSuccessor(i);
-                errs() << *blockChild << "\n";
-            }*/
 
             return false;
         }

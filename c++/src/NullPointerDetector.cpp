@@ -23,7 +23,7 @@ public:
         // each instruction
         for (auto& instruction : block) {
 
-            errs() << instruction << "  >>>>>>>instruction\n";
+            errs() << instruction << "\n";
 
             // check if an allocation instruction
             if (auto* allocaInstruction = dyn_cast<AllocaInst>(&instruction)) {
@@ -103,11 +103,22 @@ public:
         return nullPointerMap;
     }
 
-/*    static std::vector<Value*> compare(NullPointerMap newNpm, NullPointerMap oldNpm) {
-        std::unordered_map newMap = newNpm.getInnerMap();
-        std::unordered_map oldMap = oldNpm.getInnerMap();
+    /**
+     * Return a list of keys which have changed in newNpm relative to oldNpm
+     *
+     * @param newNpm
+     * @param oldNpm
+     * @return
+     */
+    static std::vector<Value*> compare(NullPointerMap newNpm, NullPointerMap oldNpm) {
+
+        std::vector<Value*> differences {};
+
+        std::unordered_map<Value*, VariableEntry*> newMap = newNpm.getInnerMap();
+        std::unordered_map <Value*, VariableEntry*>oldMap = oldNpm.getInnerMap();
         std::vector<Value*> newKeys = newNpm.getKeys();
         std::vector<Value*> oldKeys = oldNpm.getKeys();
+
         // If keys1[i] = null &&
         for (int i = 0; i < oldKeys.size(); ++i) {
             Value* oldKey = oldKeys[i];
@@ -117,12 +128,13 @@ public:
             }
 
             if (hasKey) {
-                VariableEntry newVarEntry = newMap.at(oldKey);
-                if (!newVarEntry.equals(oldMap.at(oldKey))) {
-
+                VariableEntry newVarEntry = *(newMap.at(oldKey));
+                if (!newVarEntry.equals(*(oldMap.at(oldKey)))) {
+                    differences.push_back(oldKey);
                 }
             }
         }
-    }*/
 
+        return differences;
+    }
 };
