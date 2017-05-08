@@ -28,7 +28,8 @@ namespace {
 
         virtual bool runOnFunction(Function& function) {
 
-            function.viewCFG();
+            // Show the CFG:
+            /*function.viewCFG();*/
 
             // Init the worklist
             NullPointerMap knowledge;
@@ -49,47 +50,19 @@ namespace {
                 BasicBlock& currentBlock = worklist.front().bb;
                 NullPointerMap currentKnowledge = worklist.front().knowledge;
                 worklist.pop();
-                errs() << "PROCESSING BLOCK: " << currentBlock << "\n";
-
-                /*NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, currentKnowledge);*/
-
 
                 NullPointerMap oldKnowledge = blockKnowledge[&currentBlock];
                 NullPointerMap mergedKnowledge = oldKnowledge.merge(currentKnowledge);
                 NullPointerMap newKnowledge = NullPointerDetector::detect(currentBlock, mergedKnowledge);
-                // DETECT @ CURRENTKNOWLEDGE
-                // MERGE RESULT
-                // DIFFERENCE? PUSH SUCCESSORS : do nothing.
-                //errs() << mergedKeys.size() << " keys\n";
-
-                /*for (int i = 0; i < mergedKeys.size(); i++) {
-                    errs() << " >> " << *(mergedKeys)[i] << "\n";
-                }*/
-
-                // what to do with newKnowledge?
-
-                //errs() << newKeys.size() << " keys\n";
-
-                /*for (int i = 0; i < newKeys.size(); i++) {
-                    errs() << " >> " << *(newKeys)[i] << "\n";
-                }*/
 
                 // update the blockMap ?
                 blockKnowledge[&currentBlock] = newKnowledge;
 
                 std::vector<Value*> mergedKeys = mergedKnowledge.getKeys();
                 std::vector<Value*> oldKeys = oldKnowledge.getKeys();
-                /*for (int i = 0; i < oldKeys.size(); i++) {
-                    errs() << " NEWKEY>> " << *(oldKeys)[i] << "\n";
-                }
-                for (int i = 0; i < mergedKeys.size(); i++) {
-                    errs() << " MERGEDKEY>> " << *(mergedKeys)[i] << "\n";
-                }*/
                 // if merged knowledge is different, we add to stack ?
 
                 std::vector<Value*> differences = NullPointerDetector::compare(newKnowledge, oldKnowledge);
-
-                errs() << differences.size() << " differences\n";
 
                 if (differences.size() > 0) {
                     // there was at least one difference - push all successors to worklist?
@@ -97,11 +70,8 @@ namespace {
 
                     for (unsigned i = 0, NSucc = terminator->getNumSuccessors(); i < NSucc; ++i) {
                         BasicBlock* successorBlock = terminator->getSuccessor(i);
-
                         // add new element to worklist - and append newKnowledge?
                         worklist.push((WorklistElement) {*successorBlock, newKnowledge});
-
-                        errs() << "BLCK: " << *successorBlock << "\n";
                     }
                 }
             }

@@ -38,9 +38,6 @@ VariableEntry* VariableEntry::merge(VariableEntry* other) {
             ret->var = this->getVar();
             ret->isPointer = other->isPtr();
         } else {
-            errs() << "this: " << (this->getVar()) << "\n";
-            errs() << "other: " << (other->getVar()) << "\n";
-            errs() << "MAYBENULL" << "\n";
             ret->var = (Value*) Enums::LatticeValue::MAYBE_NULL;
         }
         return ret;
