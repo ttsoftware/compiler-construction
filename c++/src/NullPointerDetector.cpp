@@ -23,7 +23,7 @@ public:
         // each instruction
         for (auto& instruction : block) {
 
-            errs() << "INST: " << instruction << "\n";
+            /*errs() << "INST: " << instruction << "\n";*/
 
             // check if an allocation instruction
             if (auto* allocaInstruction = dyn_cast<AllocaInst>(&instruction)) {
@@ -82,10 +82,10 @@ public:
 
                 if (nullPointerMap.entryisMaybeNull(loadInstruction->getOperand(0))) {
                     errs() << "WARNING:\n";
-                    errs() << "Dereferening a variable: " << *loadInstruction->getOperand(0) << "\n";
+                    errs() << "Dereferencing a variable: " << *loadInstruction->getOperand(0) << "\n";
                     errs() << "On the following instruction: " << *loadInstruction << "\n";
-                    errs() << "MIGHT result in null pointer exception.";
-                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::IS_NULL, false);
+                    errs() << "MIGHT result in null pointer exception.\n";
+                    nullPointerMap.set(loadInstruction, (Value*) Enums::LatticeValue::MAYBE_NULL, false);
                 }
 
                 // Guard against nulls

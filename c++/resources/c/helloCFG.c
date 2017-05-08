@@ -6,8 +6,8 @@
  *
  */
 int main() {
-    int* x = NULL;
     int y = 3;
+    int* x = NULL;
     int l = 1;
     if (l) {
         x = &y;
